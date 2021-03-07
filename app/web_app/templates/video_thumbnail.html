@@ -1,0 +1,12 @@
+{% extends 'base_modal.html' %}
+    {% set action = url_for('video_thumbnail', video_id=video.id) %}
+    {% set button_text = 'Modifier la miniature' %}
+{% block modal_title %}Modifier l'apperçu{% endblock %}
+{% block body %}
+    <label for="seconds">Nombre de secondes de la vidéo pour créer l'aperçu</label>
+    <input id="seconds" name="seconds" type="number" min="1" max="{{ video.get_seconds() }}" value ="9">
+    <input type="hidden" id="videoId" name="videoId" value="{{ video.id }}">
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+{% endblock %}

@@ -1,0 +1,14 @@
+[Unit]
+Description=replay video
+After=network.target
+
+[Service]
+ExecStart= sudo /usr/bin/python3 -u full_screen.py
+WorkingDirectory=/home/pi/replay_video/app
+StandardOutput=file:/home/pi/replay_video/app.log
+StandardError=file:/home/pi/replay_video/app.log
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

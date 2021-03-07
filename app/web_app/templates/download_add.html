@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1> Télécharger une vidéo</h1>
+    <div id="nav-bar">
+        <a
+            href="{{ url_for('video_new') }}"
+            class="btn-circle" title="Retour"><span class="icon arrow-circle-left"></span>
+        </a>
+    </div>
+    <main>
+        <div class="block">
+            <form method="post">
+                <div class="block-body">
+                    <div class="form-group">
+                        <label class="label" for="title">Titre</label>
+                        <input class="value" type="text" id="title" name="title" value="{% if video %}{{ video.title }}{% endif %}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="program_id">Emission</label>
+                        <select type="text" name="program_id" id="program_id" class="select2-single value"
+                                data-ajax--url="{{ url_for('program_list_ajax') }}" data-tags="true">
+                            {% if video %}<option value="{{ video.program_id }}">{{ video.program }}</option>{% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="broadcast_at">Date de diffusion</label>
+                        <input class="value" type="date" id="broadcast_at" name="broadcast_at" value="{{ today }}"
+                               value="{% if video %}{{ video.broadcast_at }}{% endif %}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="channel_id">Chaîne</label>
+                        <select type="text" name="channel_id" id="channel_id" class="select2-single value"
+                                data-ajax--url="{{ url_for('channel_list_ajax') }}" data-tags="true">
+                            {% if video %}<option value="{{ video.channel_id }}">{{ video.channel}}</option>{% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="url">URL du de la video</label>
+                        <input class="value" type="text" name="url" id="url" value="{% if video %}{{ video.url }}{% endif %}" required>
+                    </div>
+                </div>
+                <div class="block-footer">
+                    <button class="btn btn-primary" type="submit">Valider</button>
+                </div>
+                <input type="hidden" id="id" name="id" value="{% if video %}{{ video.id }}{% endif %}">
+            </form>
+        </div>
+    </main>
+{% endblock %}

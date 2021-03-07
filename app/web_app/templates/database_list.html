@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>Gérer la liste des émissions et des chaînes</h1>
+    <div id="nav-bar">
+        <a href="{{ url_for('tools') }}" class="btn-circle">
+            <span class="icon arrow-circle-left"></span>
+        </a>
+    </div>
+    <main>
+        {% for list in database_list %}
+            <div class="block">
+                <div class="block-body">
+                    <h2>{{ list.title }}</h2>
+                    {% if list.all_items|length %}
+                    <ul>
+                        {% for item in list.all_items %}
+                            {% set param = {list.id: item.id} %}
+                            <li>
+                                <a href="{{ url_for('database_edit', **param) }}" title="Modifier">
+                                    <span class="badge primary icon pencil-alt"></span>
+                                </a>
+                                <a href="{{ url_for('database_delete', **param) }}" title="Supprimer"
+                                    class="modal-trigger" data-toggle="modal" data-type="danger">
+                                    <span class="badge alert-warning icon times"></span>
+                                </a>
+                                {{ item.title}}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                        <p>Auncune émission</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </main>
+
+{% endblock %}
