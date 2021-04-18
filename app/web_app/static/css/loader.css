@@ -2,6 +2,7 @@
   border: 2px solid #f3f3f3; /* Light grey */
   border-top: 2px solid var(--primary-color); /* Blue */
   border-radius: 50%;
+  display: inline-block;
   width: 25px;
   height: 25px;
   animation: spin 2s linear infinite;

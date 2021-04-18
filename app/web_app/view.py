@@ -16,12 +16,15 @@ import config
 from pathlib import Path
 
 sys.path.append(os.path.join(config.BASE_DIR, config.APP_DIR))
-from app import ProgramRepository, ChannelRepository, poweroff, Program, Channel
+from app import poweroff
+from program import Program, ProgramRepository
+from channel import Channel, ChannelRepository
 from video import Video, VideoRepository
 from device import Device
 from file import File
 from network import Network
-from video_player_subprocess import VideoPlayer
+from web_service import WebService
+#from video_player_subprocess import VideoPlayer
 
 
 app = Flask(__name__)
@@ -30,7 +33,8 @@ video_repository = VideoRepository()
 program_repository = ProgramRepository()
 channel_repository = ChannelRepository()
 network = Network()
-video_player = VideoPlayer()
+#video_player = VideoPlayer()
+web_service = WebService()
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -86,8 +90,6 @@ def video_show(video_id):
 
 @app.route("/video/download/ajax", methods=['POST'])
 def video_download():
-    pprint(request.headers.get('X-Requested-With'))
-    pprint(request.method)
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         data = dict(request.form)
         video_id = data.get('video_id')
@@ -96,9 +98,14 @@ def video_download():
 
     if video.url is not None and video.status < 2:
         if video.status == Video.STATUS_DOWNLOAD_NONE:
-            video.status = Video.STATUS_DOWNLOAD_START
-            video_repository.update_status(video)
             video.download()
+
+    return jsonify(response=1)
+
+
+@app.route("/ws/video/list/ajax", methods=['GET'])
+def ws_video_list():
+    web_service.get_video_list()
 
     return jsonify(response=1)
 
@@ -372,6 +379,21 @@ def video_list_ajax():
     result = [{'id': f"v-{video.id}", 'text': video.title} for video in videos]
     result.extend([{'id': f"p-{program.id}", 'text': program.title} for program in programs])
     return json.dumps({'results': result})
+
+
+@app.route("/videos/status/", methods=['GET'])
+def videos_status_ajax():
+    videos_status = [
+        {'label': 'À télécharger', 'value': web_service.has_video_to_download()},
+        {'label': 'En chargement', 'value': len(video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_START))},
+        {'label': 'En erreur', 'value': len(video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_ERROR))},
+    ]
+
+    is_video_list_processing=web_service.is_video_list_processing()
+    render = render_template("videos_status.html", videos_status=videos_status,
+                             is_video_list_processing=is_video_list_processing)
+
+    return jsonify({'render': render, 'is_video_list_processing': is_video_list_processing})
 
 
 @app.route("/program/list/", methods=['POST'])

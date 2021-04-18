@@ -1,15 +1,14 @@
 from pprint import pprint
 
 import db
-import app
-
+# import app
 
 class ModelRepository:
     def __init__(self):
         self.command = None
         self.param = None
         model = self.get_model()
-        self.klass = app.get_globals()[model]
+        self.klass = self.get_globals()[model]
         self.table = model.lower()
 
     @staticmethod
@@ -46,6 +45,12 @@ class ModelRepository:
         self.command = f"SELECT id, title FROM {self.table} WHERE title LIKE :term;"
 
         return self.getResults()
+
+    def find_one_by_title(self, title):
+        self.param = {'title': title.lower()}
+        self.command = f"SELECT id, title FROM {self.table} WHERE LOWER(title) = :title;"
+
+        return self.getOneResult()
 
     def update_title(self, item):
         self.param = {
@@ -118,4 +123,3 @@ class Model:
             self.edit()
 
         return self
-

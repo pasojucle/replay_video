@@ -161,6 +161,9 @@ li > a.li-btn:hover {
 .badge.success {
     background-color: var(--success-color);
 }
+.badge.info {
+    background-color: var(--primary-color);
+}
 .btn {
     background-color: var(--background-color);
 }
@@ -291,6 +294,12 @@ input:disabled:hover {
 }
 .hidden {
     display: none;
+}
+.align-center {
+    text-align: center;
+}
+.margin-auto {
+    margin: auto;
 }
 @media screen and (max-width: 414px) {
     h1 {

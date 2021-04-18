@@ -19,16 +19,18 @@
                 {% endfor %}
             </div>
         </div>
+        <div id="videos-status-container" class="block">
+            <h2>Etats des videos</h2>
+            <div class="align-center">
+                <div class="loader margin-auto"></div>
+            </div>
+        </div>
         <div class="block">
             <h2>Outils</h2>
             <ul>
                 <li>
                     <a href="{{ url_for('video_new') }}" title="Ajouter une vidéo" class="li-btn">
                         <span class="badge primary icon file-video"></span> Ajouter une vidéo</a>
-                </li>
-                <li>
-                    <a href="" title="Rechercher les téléchargements disponibles" class="li-btn disabled">
-                        <span class="badge primary icon download"></span> Rechercher les téléchargements disponibles</a>
                 </li>
                 <li>
                     <a href="{{ url_for('database_list') }}" title="Gérer la liste des émissions et des chaînes" class="li-btn">

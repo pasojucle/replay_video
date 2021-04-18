@@ -3,6 +3,7 @@ $(document).ready(function() {
     $(document).on('click', '.btn-video', actionVideo);
     $(document).on('click', '#shut-down-btn', shutDown);
     $(document).on('click', '#video-reload', videoReload);
+    $(document).on('click', '#ws-video-list', getVideoList);
     $('.select2-single').select2({
         language: "fr",
         ajax: {
@@ -28,6 +29,9 @@ $(document).ready(function() {
     $('.status-download').each(function() {
         getStatus($(this).data('video-id'))
     });
+    if ($('#videos-status-container').length > 0) {
+        getVideosStatus();
+    }
 });
 
 function getStatus(videoId) {
@@ -51,6 +55,32 @@ function getStatus(videoId) {
             $('#video-player-panel').removeClass('hidden');
         }
     });
+}
+
+function getVideosStatus(is_video_list_processing=false) {
+    $.ajax({
+        method: "GET",
+        url: "/videos/status/",
+        dataType: 'json',
+    })
+    .done(function( response ) {
+        $('#videos-status-container').replaceWith(
+            $(response.render)
+        )
+        if (response.is_video_list_processing || is_video_list_processing) {
+            setTimeout(function(){getVideosStatus();}, 15000);
+        }
+    });
+}
+
+function getVideoList(e) {
+    e.preventDefault();
+    getVideosStatus(true);
+    $.ajax({
+        method: "GET",
+        url: "/ws/video/list/ajax",
+        dataType: 'json',
+    })
 }
 function download(videoId) {
     $.ajax({

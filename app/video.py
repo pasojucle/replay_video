@@ -78,6 +78,8 @@ class Video:
 
     def download(self):
         pprint('download')
+        self.status = Video.STATUS_DOWNLOAD_START
+        VideoRepository().update_status(self)
         path = os.path.join(config.MEDIA_DIR, config.VIDEOS_DIR)
         full_filename = '_'.join(filter(None,[self.title, self.program, self.channel, self.broadcast_at]))
         regex = re.compile(r"(\s_\s)|([!@#$%^&*()\[\]{};:,/<>?\|\'\"\~\-=+\s•]+)")
@@ -148,6 +150,10 @@ class VideoRepository(ModelRepository):
     def get_model():
         return 'Video'
 
+    @staticmethod
+    def get_globals():
+        return globals()
+
     def find_all(self):
         self.command = '''SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.status, v.duration,
                     p.title AS program, c.title AS channel
@@ -205,13 +211,23 @@ class VideoRepository(ModelRepository):
         self.command = "UPDATE video SET status=:status WHERE id=:id"
         self.execute('update')
 
+    def find_videos_by_status(self, status):
+        self.param = {'status': status}
+        self.command = """SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename,
+                    p.title AS program
+                    FROM video AS v
+                    INNER JOIN program AS p ON p.id = v.program_id
+                    WHERE v.status=:status;"""
+
+        return self.getResults()
+
     def find_videos_by_program(self, program_id):
         self.param = {'id': program_id}
         self.command = """SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename,
                     p.title AS program
                     FROM video AS v
                     INNER JOIN program AS p ON p.id = v.program_id
-                    WHERE p.id=:id ;"""
+                    WHERE p.id=:id;"""
 
         return self.getResults()
 
