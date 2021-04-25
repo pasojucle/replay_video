@@ -4,6 +4,7 @@ $(document).ready(function() {
     $(document).on('click', '#shut-down-btn', shutDown);
     $(document).on('click', '#video-reload', videoReload);
     $(document).on('click', '#ws-video-list', getVideoList);
+    $(document).on('submit', 'form[name="version_upgrade"]', versionUpgrade);
     $('.select2-single').select2({
         language: "fr",
         ajax: {
@@ -149,4 +150,8 @@ function videoReload(e) {
         url: route,
         dataType: 'json',
     });
+}
+
+function versionUpgrade(e) {
+    $('.loader-container').removeClass('hidden');
 }

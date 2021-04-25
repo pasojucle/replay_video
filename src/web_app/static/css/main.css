@@ -268,7 +268,7 @@ li {
 .status-download {
     float: left;
 }
-.status-download > * {
+.status-download > *, .loader-container > *  {
     vertical-align: middle;
 }
 .status-download > *:not(:last-child) {
