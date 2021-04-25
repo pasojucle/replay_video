@@ -75,8 +75,6 @@ class WebService:
 
         if version:
             tag = version.get('tag')
-            # TODO supprimer - pour test
-            tag = 'v1.0'
             if tag and tag[1:] > settings['version'][1:]:
                 return str(tag)
 
