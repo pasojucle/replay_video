@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1> Config</h1>
+    <div id="nav-bar">
+        <a href="{{ url_for('tools') }}"  class="btn-circle" title="Retour">
+            <span class="icon arrow-circle-left"></span>
+        </a>
+    </div>
+    <main>
+        <div class="block">
+            <form method="post">
+                <div class="block-body">
+                    {% for key, value in settings.items() %}
+                    <div class="form-group">
+                        <label class="label" for="{{ key }}">{{ key }}</label>
+                        <input class="value" type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}" required>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="block-footer">
+                    <button class="btn btn-primary" type="submit">Valider</button>
+                </div>
+            </form>
+        </div>
+    </main>
+{% endblock %}

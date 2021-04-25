@@ -1,0 +1,139 @@
+@font-face {
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("webfonts/fa-solid-900.eot");
+  src: url("webfonts/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("webfonts/fa-solid-900.woff2") format("woff2"), url("webfonts/fa-solid-900.woff") format("woff"), url("webfonts/fa-solid-900.ttf") format("truetype"), url("webfonts/fa-solid-900.svg#fontawesome") format("svg"); }
+
+
+
+/* Step 1: Common Properties: All required to make icons render reliably */
+.icon::before {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Step 2: Reference Individual Icons */
+.settings::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f013";
+}
+
+/* Note: Make sure to include the correct weight and Unicode value for the icon */
+.power-off::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f011";
+}
+
+.play-circle::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f144";
+}
+
+.stop-circle::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f28d";
+}
+.pause-circle::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f28b";
+}
+.search::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f002";
+}
+.arrow-circle-left::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f0a8";
+}
+.eject::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f052";
+}
+.wifi::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1eb";
+}
+.download::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f019";
+}
+.hdd::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f0a0";
+}
+.check-circle::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f058";
+}
+.times-circle::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f057";
+}
+.tools::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f7d9";
+}
+.dashboard::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f3fd";
+}
+.network-wired::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f6ff";
+}
+.cogs::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f085";
+}
+.usb::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f287";
+}
+.file-video::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1c8";
+}
+.cloud-download-alt::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f381";
+}
+.database::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1c0";
+}
+.pencil-alt::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f303";
+}
+.times::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f00d";
+}

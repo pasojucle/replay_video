@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>Liste des vidéos</h1>
+    <div id="nav-bar">
+        <a id="shut-down-btn" href="{{ url_for('shutdown') }}" class="btn-circle" title="Eteindre">
+            <span class="icon power-off"></span>
+        </a>
+        <a href="{{ url_for('tools') }}" class="btn-circle" title="Administration">
+            <span class="icon tools"></span>
+        </a>
+    </div>
+    <main>
+        <div class="block">
+            <form id="searchForm" method="post">
+                <select type="text" name="search" id="search" class="select2-single search-input"
+                        data-ajax--url="{{ url_for('video_list_ajax') }}" data-tags="false" data-placeholder="Rechercher..."
+                        data-minimum-input-length="4">
+                </select>
+                <button type="submit" class="search-wrapper" value="">
+                  <span class="icon search"></span>
+                </button>
+            </form>
+        </div>
+        {% if not file_list and video_list|length %}
+            <div class="block alert-warning">Auncun fichiers existants. Vérifier que le disque soit branché.</div>
+        {% endif %}
+        <div id="videoList" class="block">
+            <div class="block-body">
+                {% if video_list|length %}
+                <ul>
+                    {% for video in video_list %}
+                        <li><a href="{{ url_for('video_show', video_id=video.id) }}" class="li-btn">
+                            <div class="program">{{ video.program }}</div>
+                            <div class="title">{{ video.title }}</div>
+                        </a></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    <p>Auncune vidéo existante</p>
+                {% endif %}
+
+            </div>
+        </div>
+        <div id="reload" class="block hidden">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Recharger la page</a>
+        </div>
+    </main>
+
+{% endblock %}

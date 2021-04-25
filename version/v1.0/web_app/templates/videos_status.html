@@ -1,0 +1,24 @@
+<div id="videos-status-container" class="block">
+    <h2>Etats des videos</h2>
+    <div class="row col-3">
+        {% for status in videos_status %}
+            <div>
+                <span class="badge info">{{ status.value }}</span>
+                <span>{{ status.label }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% if videos_status[0].value > 0 and not is_video_list_processing %}
+        <div class="block-footer">
+            <a id="ws-video-list" href="" title="Télécharger les vidéos disponibles" class="btn btn-primary">
+                <span class="badge primary icon download"></span> Télécharger les vidéos disponibles
+            </a>
+        </div>
+    {% endif %}
+    {% if is_video_list_processing %}
+        <div class="block-footer" style="text-align:left;">
+            <span class="loader"></span>
+            <span>Téléchargement en cours</span>
+        </div>
+    {% endif %}
+</div>

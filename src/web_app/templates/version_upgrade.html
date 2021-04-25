@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>Mise à jour</h1>
+    <div id="nav-bar">
+        <a href="{{ url_for('tools') }}" class="btn-circle">
+            <span class="icon arrow-circle-left"></span>
+        </a>
+    </div>
+    {{ tag }}
+    {% if not tag %}
+        {% set content = 'Vous avez la version la plus récente' %}
+        {% set footer %}
+            <a href="{{ url_for('tools') }}" class="btn btn-primary" title="Fermer">Fermer</a>
+        {% endset %}
+    {% elif status == 0 and tag %}
+        {% set content = 'Une nouvelle mise à jour est disponible' %}
+        {% set footer %}
+            <form method="post">
+                <button class="btn btn-primary" type="submit">Mettre à jour maintenant</button>
+                <input type="hidden" id="tag" name="tag" value="{{ tag }}">
+                <a href="{{ url_for('tools') }}" class="btn btn-default" title="Plus tard">Plus tard</a>
+            </form>
+
+        {% endset %}
+    {% endif %}
+    <main>
+        <div id="version-upgrade" class="block">
+            <div class="block-body">
+                <p>{{ content }}</p>
+            </div>
+            <div class="block-footer">
+                {{ footer }}
+            </div>
+        </div>
+    </main>
+
+{% endblock %}
