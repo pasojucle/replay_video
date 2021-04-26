@@ -18,18 +18,32 @@ class Upgrade:
     tmp_dir = '/home/patrick/Téléchargements'
 
     def upgrade(self):
-        tag = web_service.get_new_version()
+        # tag = web_service.get_new_version()
+        tag = self.get_new_version()
 
         if tag:
             self.change_version(tag)
             self.restart_services()
+
+    @staticmethod
+    def get_new_version():
+        bash_command = "git tag"
+        result = subprocess.run(['bash', '-c', bash_command], capture_output=True, text=True, check=True)
+        versions = result.stdout.splitlines()
+        versions.sort(reverse=True)
+        tag = versions[0] if versions else None
+
+        if tag and tag[1:] > settings['version'][1:]:
+            return str(tag)
+
+        return None
 
     def change_version(self, tag):
         url = f"{settings['update_uri']}{tag}.zip"
         logging.info('Start downloading ( %s )', url)
         web_service.set_version_status([tag, 1])
         r = requests.get(url, allow_redirects=True)
-        pprint(r.status_code)
+
         if r.status_code != 200:
             logging.error(f"[{r.status_code}] Error while downloading: unable to communicate with server at {url}")
             return None
@@ -37,7 +51,7 @@ class Upgrade:
         z = zipfile.ZipFile(io.BytesIO(r.content))
         filename = z.namelist()[0]
         z.extractall(self.tmp_dir)
-        src = path.join(self.tmp_dir, filename, 'app')
+        src = path.join(self.tmp_dir, filename, 'src')
         dst = path.join(config.BASE_DIR, config.VERSION_DIR, tag)
         link = path.join(config.BASE_DIR, 'app')
 
@@ -74,4 +88,5 @@ class Upgrade:
 
 if __name__ == '__main__':
     upgrade = Upgrade()
-    upgrade.upgrade()
+    # upgrade.upgrade()
+    upgrade.get_new_version()

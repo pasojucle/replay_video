@@ -70,16 +70,6 @@ class WebService:
                 self.set_video_status([data.get('id_website'), video.status])
                 remove(FILE_LOCK)
 
-    def get_new_version(self):
-        version = self.__get(VERSION_LAST_SKELETON.format(settings['ws_uri']))
-
-        if version:
-            tag = version.get('tag')
-            if tag and tag[1:] > settings['version'][1:]:
-                return str(tag)
-
-        return None
-
     def set_version_status(self, data):
         self.__get(VERSION_STATUS_SKELETON.format(settings['ws_uri'], *data))
 
