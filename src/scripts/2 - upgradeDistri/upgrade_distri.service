@@ -1,0 +1,14 @@
+[Unit]
+Description=update distri
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u upgrade_distri.py
+WorkingDirectory=/home/pi/replay_video
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

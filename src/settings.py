@@ -7,6 +7,7 @@ from sys import exit
 from configparser import ConfigParser, Error, ParsingError
 import shutil
 import logging
+from log_gen import LogGen
 import sys
 from collections import UserDict
 from pprint import pprint
@@ -30,6 +31,8 @@ DEFAULTS = {
     },
 }
 
+logger = LogGen().loggen()
+
 class Settings(UserDict):
 
     def __init__(self, *args, **kwargs):
@@ -39,8 +42,8 @@ class Settings(UserDict):
         self.conf_lock = self.get_configlock()
 
         if not path.isfile(self.conf_file):
-            logging.error('Config-file %s missing', self.conf_file)
-            logging.error('Create default file')
+            logger.error('Config-file %s missing', self.conf_file)
+            logger.error('Create default file')
             self.save()
         else:
             self.load()
@@ -54,7 +57,7 @@ class Settings(UserDict):
             else:
                 self[field] = config.get(section, field)
         except Error as e:
-            logging.info("Could not parse setting '%s.%s': %s. Using default value: '%s'." % (section, field, e, default))
+            logger.info("Could not parse setting '%s.%s': %s. Using default value: '%s'." % (section, field, e, default))
             self[field] = default
 
 
@@ -67,19 +70,19 @@ class Settings(UserDict):
 
     def load(self):
         """Loads the latest settings from replay_video.conf into memory."""
-        logging.debug('Reading config-file...')
+        logger.debug('Reading config-file...')
         config = ConfigParser()
 
         if not path.isfile(self.conf_file):
-            logging.error('Config-file %s missing', self.conf_file)
+            logger.error('Config-file %s missing', self.conf_file)
             if path.isfile(self.conf_file + ".bak"):
-                logging.info('Restore backup')
+                logger.info('Restore backup')
                 shutil.copy2(self.conf_file + ".bak", self.conf_file)
 
         file_size = stat(self.conf_file).st_size
         if file_size == 0 and not path.exists(self.conf_lock):
             shutil.copy2(self.conf_file + ".bak", self.conf_file)
-            logging.info('Backup installed')
+            logger.info('Backup installed')
         try:
             config.read(self.conf_file)
         except ParsingError:
@@ -118,7 +121,7 @@ class Settings(UserDict):
 
     def check_user(self, user, password):
         if not self['user'] or not self['password']:
-            logging.debug('Username or password not configured: skip authentication')
+            logger.debug('Username or password not configured: skip authentication')
             return True
 
         return self['user'] == user and self['password'] == password

@@ -3,6 +3,7 @@ import inspect
 
 BASE_DIR = path.dirname(path.abspath(inspect.getfile(inspect.currentframe())))
 DATA_DIR = '.data'
+VAR_DIR = 'var'
 APP_DIR = 'app'
 VERSION_DIR = 'version'
 # DEVICE = 'sdd1'

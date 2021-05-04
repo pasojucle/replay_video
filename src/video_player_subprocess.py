@@ -2,6 +2,7 @@ import os
 import time
 from pathlib import Path
 import logging
+from log_gen import LogGen
 from pprint import pprint
 import subprocess
 import psutil
@@ -9,6 +10,7 @@ import psutil
 from file import File
 from video import Video
 
+logger = LogGen().loggen()
 
 class VideoPlayer:
     def __init__(self):
@@ -63,7 +65,7 @@ class VideoPlayer:
                     try:
                         child.kill()
                     except psutil.NoSuchProcess:
-                        logging.error('--- Try to kill dead process ---')
+                        logger.error('--- Try to kill dead process ---')
             self.omx = None
             return True
 

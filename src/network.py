@@ -8,6 +8,7 @@ from pprint import pprint
 
 import shutil
 import logging
+from log_gen import LogGen
 import subprocess
 from collections import UserDict
 
@@ -25,6 +26,7 @@ INDENT = '    '
 SSID_PI = 'Raspberry'
 PSK_PI = 'Raspberry'
 
+logger = LogGen().loggen()
 
 class Network(UserDict):
 
@@ -47,7 +49,7 @@ class Network(UserDict):
         return f"ssid: {self.ssid}, psk: {self.psk}, id_str: {self.id_str}, address: {self.address}, netmask: {self.netmask}, gateway: {self.gateway}, dns_nameservers: {self.dns_nameservers}"
 
     def save(self):
-        logging.info('Network settings backup')
+        logger.info('Network settings backup')
         if path.isfile(self.network_interface_file):
             shutil.copy2(self.network_interface_file, self.network_interface_file + ".bak")
         if path.isfile(self.wpa_supplicant_file):
@@ -55,11 +57,11 @@ class Network(UserDict):
 
     def backup(self):
         if path.isfile(self.network_interface_file + ".bak"):
-            logging.info('Restore network interface backup')
+            logger.info('Restore network interface backup')
             shutil.copy2(self.network_interface_file + ".bak", self.network_interface_file)
             remove(self.network_interface_file + ".bak")
         if path.isfile(self.wpa_supplicant_file + ".bak"):
-            logging.info('Restore wpa supplicant backup')
+            logger.info('Restore wpa supplicant backup')
             shutil.copy2(self.wpa_supplicant_file + ".bak", self.wpa_supplicant_file)
             remove(self.wpa_supplicant_file + ".bak")
         self.relod_network_interface()

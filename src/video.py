@@ -7,7 +7,9 @@ import datetime
 import unicodedata
 import base64
 import logging
+from log_gen import LogGen
 
+from settings import settings
 from file import File
 from model import ModelRepository
 from device import Device
@@ -15,6 +17,7 @@ from device import Device
 import config
 
 device = Device()
+logger = LogGen().loggen()
 
 class Video:
     STATUS_DOWNLOAD_NONE = 0
@@ -22,8 +25,6 @@ class Video:
     STATUS_DOWNLOAD_SUCCESS = 2
     STATUS_DOWNLOAD_ERROR = 3
     STATUS_FILE_NO_EXIST = 4
-
-
 
     def __init__(self, data):
         self.id = None
@@ -65,7 +66,7 @@ class Video:
 
     def get_thumbnail_encoding(self):
         if self.filename:
-            img_filename = os.path.join(config.MEDIA_DIR, config.THUMBNAILS_DIR, self.filename.split(".")[-2] + '.jpg')
+            img_filename = os.path.join(settings['media_dir'], settings['thumbnails_dir'], self.filename.split(".")[-2] + '.jpg')
 
             if os.path.isfile(img_filename):
                 with open(img_filename, "rb") as image_file:
@@ -78,10 +79,10 @@ class Video:
         return json.dumps(self, indent=4, default=lambda o: o.__dict__)
 
     def download(self):
-        logging.debug('download')
+        logger.debug('download')
         self.status = Video.STATUS_DOWNLOAD_START
         VideoRepository().update_status(self)
-        path = os.path.join(config.MEDIA_DIR, config.VIDEOS_DIR)
+        path = os.path.join(settings['media_dir'], settings['video_dir'])
         full_filename = '_'.join(filter(None,[self.title, self.program, self.channel, self.broadcast_at]))
         regex = re.compile(r"(\s_\s)|([!@#$%^&*()\[\]{};:,/<>?\|\'\"\~\-=+\s•]+)")
         full_filename_no_accents = ''.join((c for c in unicodedata.normalize('NFD', full_filename) if unicodedata.category(c) != 'Mn'))

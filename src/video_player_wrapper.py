@@ -2,10 +2,12 @@ import os
 from omxplayer.player import OMXPlayer
 from pathlib import Path
 import logging
+from log_gen import LogGen
 from pprint import pprint
 
 from file import File
 from video import Video
+logger = LogGen().loggen()
 
 
 class VideoPlayer:
@@ -40,7 +42,7 @@ class VideoPlayer:
     def set_player(self, video):
         try:
             video_path = Path(File(video.filename).video)
-            player_log = logging.getLogger(f"Player {video.id}")
+            player_log = logger.getLogger(f"Player {video.id}")
             dbus_name = f'org.mpris.MediaPlayer2.omxplayer{video.id}'
             pprint(dbus_name)
             player = OMXPlayer(video_path, dbus_name=dbus_name)

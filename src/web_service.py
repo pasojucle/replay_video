@@ -7,6 +7,7 @@ from requests.utils import requote_uri
 
 import requests
 import logging
+from log_gen import LogGen
 from pprint import pprint
 from os import path, remove, rename, mkdir, symlink, unlink
 import re
@@ -22,14 +23,14 @@ VIDEO_LIST_SKELETON = '{0}/ws/videos'
 VIDEO_STATUS_SKELETON = '{0}/ws/video/status/{1}/{2}'
 PROGRAM_SKELETON = '{0}/ws/program/{1}/{2}/{3}'
 CHANNEL_SKELETON = '{0}/ws/channel/{1}/{2}/{3}'
-RASPBERRY_UPDATE_SKELETON = '{0}/ws/raspberry/update/{1}'
+DISTRI_UPDATE_SKELETON = '{0}/ws//update/distri/{1}'
 VERSION_LAST_SKELETON = '{0}/ws/version/last'
 VERSION_STATUS_SKELETON = '{0}/ws/version/{1}/{2}'
 
 FILE_LOCK = path.join(config.BASE_DIR, config.APP_DIR, "get_video_list.lock")
 
 video_repository = VideoRepository()
-
+logger = LogGen().loggen()
 
 class WebService:
 
@@ -42,7 +43,7 @@ class WebService:
         return path.isfile(FILE_LOCK)
 
     def get_video_list(self):
-        logging.debug('Get video list')
+        logger.debug('Get video list')
         videos = self.__get(VIDEO_LIST_SKELETON.format(settings['ws_uri']))
         if not self.is_video_list_processing():
             for data in videos.get('videos'):
@@ -82,6 +83,9 @@ class WebService:
     def set_video_status(self, data):
         self.__get(VIDEO_STATUS_SKELETON.format(settings['ws_uri'], *data))
 
+    def set_distri_upgrade(self, data):
+        self.__get(DISTRI_UPDATE_SKELETON.format(settings['ws_uri'], *data))
+
     def __get(self, url, timeout=30):
 
         return self.__request(url, 'get', timeout=timeout)
@@ -100,22 +104,22 @@ class WebService:
             if r.status_code == 200:
                 return r.json()
             else:
-                logging.error('Erreur: [%s],  %s inaccessible', r.status_code, url)
+                logger.error('Erreur: [%s],  %s inaccessible', r.status_code, url)
                 return None
 
         except requests.Timeout:
-            logging.error('Erreur Timeout, %s inaccessible', url)
+            logger.error('Erreur Timeout, %s inaccessible', url)
             return None
         except requests.ConnectionError:
-            logging.error('Unable to connect to the portal using %s', url)
+            logger.error('Unable to connect to the portal using %s', url)
             return None
         except ValueError as e:
-            logging.error('Trouble with WS values using %s', url)
-            logging.error(e)
+            logger.error('Trouble with WS values using %s', url)
+            logger.error(e)
             return None
 
 
 if __name__ == '__main__':
     web_service = WebService()
-
+    web_service.get_video_list()
 
