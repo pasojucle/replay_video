@@ -21,6 +21,7 @@ class UpgradeDistri:
             status = 3
 
         web_service.set_distri_upgrade(status)
+        logger.info('upgrade distri terminé avec succès')
 
 
 if __name__ == "__main__":

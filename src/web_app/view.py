@@ -4,16 +4,19 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from datetime import date
 import sys
-import os
+from os import path
 import inspect
 import base64
 import json
 import re
 from pprint import pprint
+if path.isdir('/home/pi/replay_video'):
+    sys.path.append('/home/pi/replay_video')
+
 import config
 from pathlib import Path
 
-sys.path.append(os.path.join(config.BASE_DIR, config.APP_DIR))
+sys.path.append(path.join(config.BASE_DIR, config.APP_DIR))
 from app import poweroff
 from program import Program, ProgramRepository
 from channel import Channel, ChannelRepository

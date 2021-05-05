@@ -42,8 +42,8 @@ class Settings(UserDict):
         self.conf_lock = self.get_configlock()
 
         if not path.isfile(self.conf_file):
-            logger.error('Config-file %s missing', self.conf_file)
-            logger.error('Create default file')
+            logger.info('Config-file %s missing', self.conf_file)
+            logger.info('Create default file')
             self.save()
         else:
             self.load()
