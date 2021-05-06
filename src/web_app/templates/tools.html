@@ -45,6 +45,10 @@
                         <span class="badge primary icon wifi"></span> Modifiers les paramètres réseaux</a>
                 </li>
                 <li>
+                    <a href="{{ url_for('settings_edit') }}" title="Modifiers les paramètres" class="li-btn">
+                        <span class="badge primary icon sliders-h"></span> Modifiers les paramètres</a>
+                </li>
+                <li>
                     {% if device.usb_device %}
                         <a href="{{ url_for('mount_usb_device') }}" title="Ejecter le disque usb" class="li-btn">
                             <span class="badge primary icon eject"></span> Ejecter le disque usb</a>
