@@ -26,6 +26,7 @@ class Upgrade:
         if tag:
             self.change_version(tag)
             self.restart_services()
+            self.execute_scripts(tag)
 
     @staticmethod
     def get_new_version():
@@ -60,11 +61,6 @@ class Upgrade:
 
         status = 2
         if not path.isdir(path.join(self.tmp_dir, filename)):
-            status = 3
-            web_service.set_version_status([tag, status])
-            return status
-
-        if not self.execute_scripts(tag):
             status = 3
             web_service.set_version_status([tag, status])
             return status
@@ -120,6 +116,7 @@ class Upgrade:
         to_install = set(script_list) - set(installed)
         logger.info(to_install)
 
+        status = 2
         for script_name in to_install:
             script_dir = path.join(script_path, script_name)
             logger.info(script_dir)
@@ -133,15 +130,19 @@ class Upgrade:
             try:
                 result = subprocess.run(['bash', '-c', script_link], check=True)
             except subprocess.CalledProcessError as e:
-                logger.error('Erreur lors de l\'exéctution des scripts')
+                logger.error(f'Erreur lors de l\'exéctution du script {script_link}')
+                status = 3
 
             if result.returncode != 0:
-                logger.error('Erreur lors de l\'exéctution des scripts')
-                return None
+                logger.error(f'Erreur lors de l\'exéctution du script {script_link}')
+                status = 3
 
             copytree(script_dir, path.join(control_path, script_name))
 
         chdir(current_path)
+
+        web_service.set_version_status([tag, status])
+
         return True
 
     @staticmethod
