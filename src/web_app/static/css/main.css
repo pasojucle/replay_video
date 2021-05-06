@@ -177,6 +177,13 @@ li > a.li-btn:hover {
 .btn-default {
     background-color: var(--light);
 }
+.btn-float-right {
+    float: right;
+}
+.btn-float-right::after {
+    content: '';
+    clear: both;
+}
 .block {
     background-color: var(--dark-color);
     padding: 15px;

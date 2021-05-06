@@ -25,6 +25,15 @@
         {% if not file_list and video_list|length %}
             <div class="block alert-warning">Auncun fichiers existants. Vérifier que le disque soit branché.</div>
         {% endif %}
+        {% if tag %}
+            <div class="block">
+                <form name="version_upgrade" method="post">
+                    <span>Un nouvelle mise à jour est disponible</span>
+                    <button class="btn btn-primary btn-float-right" type="submit">Mettre à jour maintenant</button>
+                    <input type="hidden" id="tag" name="tag" value="{{ tag }}">
+                </form>
+            </div>
+        {% endif %}
         <div id="videoList" class="block">
             <div class="block-body">
                 {% if video_list|length %}

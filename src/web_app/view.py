@@ -47,6 +47,7 @@ def home():
     videos = video_repository.find_all()
     device.init_videos_dir()
     device.mount_usb_device()
+    tag = upgrade.get_new_version()
 
     if request.method == 'POST':
         data = dict(request.form)
@@ -61,7 +62,7 @@ def home():
                 videos = video_repository.find_videos_by_program(id)
 
     return render_template("home.html", video_list=videos, file_list=device.file_list,
-                           program_list=program_repository.find_all())
+                           program_list=program_repository.find_all(), tag=tag)
 
 
 @app.route("/video/show/<video_id>", methods=['GET', 'POST'])
