@@ -24,7 +24,7 @@ class UpgradeDistri:
             logger.error(e)
             status = 3
 
-        web_service.set_distri_upgrade(status)
+        web_service.set_distri_upgrade([status])
         logger.info('upgrade distri terminé avec succès')
 
 
