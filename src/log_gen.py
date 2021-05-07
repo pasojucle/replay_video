@@ -1,6 +1,10 @@
 import logging
 import os.path
 from os import path, mkdir
+import sys
+
+if path.isdir('/home/pi/replay_video'):
+    sys.path.append('/home/pi/replay_video')
 import config
 
 
