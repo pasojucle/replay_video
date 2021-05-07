@@ -14,7 +14,7 @@ class UpgradeDistri:
 
     def __init__(self):
         logger.info('upgrade distri')
-        web_service.set_distri_upgrade(1)
+        web_service.set_distri_upgrade([1])
 
         bash_command = "apt-get -y update && apt-get -y dist-upgrade"
         try:
