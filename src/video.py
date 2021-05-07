@@ -19,6 +19,7 @@ import config
 device = Device()
 logger = LogGen().loggen()
 
+
 class Video:
     STATUS_DOWNLOAD_NONE = 0
     STATUS_DOWNLOAD_START = 1
