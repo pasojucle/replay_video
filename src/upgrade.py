@@ -8,6 +8,10 @@ from os import path, rename, mkdir, symlink, unlink, scandir, walk, chdir, chmod
 import stat
 from shutil import copytree
 from log_gen import LogGen
+import sys
+
+if path.isdir('/home/pi/replay_video'):
+    sys.path.append('/home/pi/replay_video')
 import config
 from web_service import WebService
 from settings import settings
@@ -16,17 +20,24 @@ from pprint import pprint
 web_service = WebService()
 logger = LogGen().loggen()
 
+
 class Upgrade:
     tmp_dir = '/home/patrick/Téléchargements'
 
-    def upgrade(self):
-        # tag = web_service.get_new_version()
-        tag = self.get_new_version()
+    def __init__(self):
+        self.tag = None
+        self.dst = path.join(config.BASE_DIR, config.VERSION_DIR, self.tag)
+        self.link = path.join(config.BASE_DIR, 'app')
 
-        if tag:
-            self.change_version(tag)
+    def __str__(self):
+        return f"tag : {self.tag}"
+
+    def execute(self):
+        if self.tag:
+            self.download_new_version()
+            self.execute_scripts()
+            self.change_version()
             self.restart_services()
-            self.execute_scripts(tag)
 
     @staticmethod
     def get_new_version():
@@ -42,10 +53,10 @@ class Upgrade:
 
         return None
 
-    def change_version(self, tag):
-        url = f"{settings['update_uri']}{tag}.zip"
+    def download_new_version(self):
+        url = f"{settings['update_uri']}{self.tag}.zip"
         logger.info('Start downloading ( %s )', url)
-        web_service.set_version_status([tag, 1])
+        web_service.set_version_status([self.tag, 1])
         r = requests.get(url, allow_redirects=True)
 
         if r.status_code != 200:
@@ -56,38 +67,40 @@ class Upgrade:
         filename = z.namelist()[0]
         z.extractall(self.tmp_dir)
         src = path.join(self.tmp_dir, filename, 'src')
-        dst = path.join(config.BASE_DIR, config.VERSION_DIR, tag)
-        link = path.join(config.BASE_DIR, 'app')
 
         status = 2
         if not path.isdir(path.join(self.tmp_dir, filename)):
             status = 3
-            web_service.set_version_status([tag, status])
+            web_service.set_version_status([self.tag, status])
             return status
 
         if not path.isdir(path.join(config.BASE_DIR, config.VERSION_DIR)):
             mkdir(path.join(config.BASE_DIR, config.VERSION_DIR))
-        rename(src, dst)
+        rename(src, self.dst)
 
-        if not path.isdir(dst):
+        if not path.isdir(self.dst):
             status = 3
-            web_service.set_version_status([tag, status])
-            return status
+            web_service.set_version_status([self.tag, status])
 
-        if path.islink(link):
-            unlink(link)
-        symlink(dst, link)
-
-        settings['version'] = tag
-        settings.save()
-
-        web_service.set_version_status([tag, status])
         return status
 
-    def execute_scripts(self, tag):
+    def change_version(self):
+        status = 2
+
+        if path.islink(self.link):
+            unlink(self.link)
+        symlink(self.dst, self.link)
+
+        settings['version'] = self.tag
+        settings.save()
+
+        web_service.set_version_status([self.tag, status])
+        return status
+
+    def execute_scripts(self):
         logger.info('Start task execute_script')
 
-        script_path = path.join(config.BASE_DIR, config.VERSION_DIR, tag, 'scripts')
+        script_path = path.join(config.BASE_DIR, config.VERSION_DIR, self.tag, 'scripts')
         control_path = path.join(config.BASE_DIR, config.DATA_DIR, 'scripts')
         current_path = getcwd()
 
@@ -141,9 +154,9 @@ class Upgrade:
 
         chdir(current_path)
 
-        web_service.set_version_status([tag, status])
+        web_service.set_version_status([self.tag, status])
 
-        return True
+        return status
 
     @staticmethod
     def restart_services():
@@ -154,6 +167,6 @@ class Upgrade:
 
 if __name__ == '__main__':
     upgrade = Upgrade()
-    upgrade.upgrade()
+    upgrade.execute()
     #upgrade.get_new_version()
     # upgrade.execute_scripts('v1.2')

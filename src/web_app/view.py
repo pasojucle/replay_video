@@ -387,7 +387,6 @@ def settings_edit():
 @app.route("/version/upgrade/", methods=['POST', 'GET'])
 def version_upgrade():
     if request.method == 'GET':
-        # tag = web_service.get_new_version()
         tag = upgrade.get_new_version()
         status = 0
     else:
