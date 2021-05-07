@@ -7,11 +7,11 @@ import subprocess
 from os import path, rename, mkdir, symlink, unlink, scandir, walk, chdir, chmod, stat as ostat, getcwd
 import stat
 from shutil import copytree
-from log_gen import LogGen
 import sys
 
 if path.isdir('/home/pi/replay_video'):
     sys.path.append('/home/pi/replay_video')
+from log_gen import LogGen
 import config
 from web_service import WebService
 from settings import settings
@@ -26,32 +26,32 @@ class Upgrade:
 
     def __init__(self):
         self.tag = None
-        self.dst = path.join(config.BASE_DIR, config.VERSION_DIR, self.tag)
+        self.dst = None
         self.link = path.join(config.BASE_DIR, 'app')
 
     def __str__(self):
         return f"tag : {self.tag}"
 
     def execute(self):
+        self.get_new_version()
         if self.tag:
             self.download_new_version()
-            self.execute_scripts()
+            if settings['env'] == 'prod':
+                self.execute_scripts()
             self.change_version()
             self.restart_services()
 
-    @staticmethod
-    def get_new_version():
+    def get_new_version(self):
         logger.info('Get version')
-        bash_command = "git tag"
+        bash_command = "git fetch & git tag"
         result = subprocess.run(['bash', '-c', bash_command], capture_output=True, text=True, check=True)
         versions = result.stdout.splitlines()
         versions.sort(reverse=True)
         tag = versions[0] if versions else None
 
         if tag and tag[1:] > settings['version'][1:]:
-            return str(tag)
-
-        return None
+            self.tag = tag
+            self.dst = path.join(config.BASE_DIR, config.VERSION_DIR, self.tag)
 
     def download_new_version(self):
         url = f"{settings['update_uri']}{self.tag}.zip"
@@ -76,6 +76,7 @@ class Upgrade:
 
         if not path.isdir(path.join(config.BASE_DIR, config.VERSION_DIR)):
             mkdir(path.join(config.BASE_DIR, config.VERSION_DIR))
+
         rename(src, self.dst)
 
         if not path.isdir(self.dst):
@@ -89,6 +90,7 @@ class Upgrade:
 
         if path.islink(self.link):
             unlink(self.link)
+
         symlink(self.dst, self.link)
 
         settings['version'] = self.tag
@@ -168,5 +170,5 @@ class Upgrade:
 if __name__ == '__main__':
     upgrade = Upgrade()
     upgrade.execute()
-    #upgrade.get_new_version()
+    # pprint(upgrade.get_new_version())
     # upgrade.execute_scripts('v1.2')
