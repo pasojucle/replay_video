@@ -1,7 +1,11 @@
 from log_gen import LogGen
 from web_service import WebService
 import subprocess
+from os import path
+import sys
 
+if path.isdir('/home/pi/replay_video'):
+    sys.path.append('/home/pi/replay_video')
 web_service = WebService()
 logger = LogGen().loggen()
 
