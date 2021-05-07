@@ -38,12 +38,12 @@ class Upgrade:
             self.download_new_version()
             if settings['env'] == 'prod':
                 self.execute_scripts()
-            self.change_version()
-            self.restart_services()
+                self.change_version()
+                self.restart_services()
 
     def get_new_version(self):
         logger.info('Get version')
-        bash_command = "git fetch & git tag"
+        bash_command = "git fetch && git tag"
         result = subprocess.run(['bash', '-c', bash_command], capture_output=True, text=True, check=True)
         versions = result.stdout.splitlines()
         versions.sort(reverse=True)
@@ -52,6 +52,9 @@ class Upgrade:
         if tag and tag[1:] > settings['version'][1:]:
             self.tag = tag
             self.dst = path.join(config.BASE_DIR, config.VERSION_DIR, self.tag)
+            return self.tag
+
+        return None
 
     def download_new_version(self):
         url = f"{settings['update_uri']}{self.tag}.zip"
