@@ -21,6 +21,7 @@ from channel import Channel, ChannelRepository
 
 VIDEO_LIST_SKELETON = '{0}/ws/videos'
 VIDEO_STATUS_SKELETON = '{0}/ws/video/status/{1}/{2}'
+VIDEO_SKELETON = '{0}/ws/video/{1}/{2}/{3}/{4}/{5}/{6}/{7}'
 PROGRAM_SKELETON = '{0}/ws/program/{1}/{2}/{3}'
 CHANNEL_SKELETON = '{0}/ws/channel/{1}/{2}/{3}'
 DISTRI_UPDATE_SKELETON = '{0}/ws//update/distri/{1}'
@@ -30,13 +31,18 @@ VERSION_STATUS_SKELETON = '{0}/ws/version/{1}/{2}'
 FILE_LOCK = path.join(config.BASE_DIR, config.APP_DIR, "get_video_list.lock")
 
 video_repository = VideoRepository()
+program_repository = ProgramRepository()
+channel_repository = ChannelRepository()
 logger = LogGen().loggen()
 
 class WebService:
 
     def has_video_to_download(self):
         videos = self.__get(VIDEO_LIST_SKELETON.format(settings['ws_uri']))
-        return len(videos.get('videos'))
+        if videos:
+            return len(videos.get('videos'))
+
+        return 0
 
     @staticmethod
     def is_video_list_processing():
@@ -66,22 +72,64 @@ class WebService:
 
                 self.set_video_status([data.get('id_website'), Video.STATUS_DOWNLOAD_START])
                 video = Video(data)
-                video_repository.edit(video)
+                video = video_repository.edit(video)
                 video.download()
-                self.set_video_status([data.get('id_website'), video.status])
+                self.set_video([video.id, video.program_id, data.get('program'), video.channel_id, data.get('channel'), video.status, data.get('id_website')])
                 remove(FILE_LOCK)
+
+
+    def update_db(self):
+        logger.info('update db')
+        error = []
+        programs = program_repository.find_to_update()
+        pprint(programs)
+        if programs:
+            for program in programs:
+                result = self.set_program([program.id, program.title, program.id_web])
+                if result:
+                    program.id_web = result.get('id_web')
+                    program.changed = 0
+                    program_repository.edit(program)
+                else:
+                    error.append(program.title)
+
+        channels = channel_repository.find_to_update()
+        if channels:
+            for channel in channels:
+                result = self.set_channel([channel.id, channel.title, channel.id_web])
+                if result:
+                    channel.id_web = result.get('id_web')
+                    channel.changed = 0
+                    program_repository.edit(channel)
+                else:
+                    error.append(channel.title)
+        if not error:
+            videos = video_repository.find_to_update()
+
+            if videos:
+                for video in videos:
+                    data = [video.id, video.title, video.broadcast_at, video.program_id, video.channel_id, video.status, video.id_web]
+                    pprint(data)
+                    result = self.set_video(data)
+                    if result:
+                        video.id_web = result.get('id_web')
+                        video.changed = 0
+                        video_repository.edit(video)
 
     def set_version_status(self, data):
         self.__get(VERSION_STATUS_SKELETON.format(settings['ws_uri'], *data))
 
     def set_program(self, data):
-        self.__get(PROGRAM_SKELETON.format(settings['ws_uri'], *data))
+        return self.__get(PROGRAM_SKELETON.format(settings['ws_uri'], *data))
 
     def set_channel(self, data):
-        self.__get(CHANNEL_SKELETON.format(settings['ws_uri'], *data))
+        return self.__get(CHANNEL_SKELETON.format(settings['ws_uri'], *data))
 
     def set_video_status(self, data):
         self.__get(VIDEO_STATUS_SKELETON.format(settings['ws_uri'], *data))
+
+    def set_video(self, data):
+        return self.__get(VIDEO_SKELETON.format(settings['ws_uri'], *data))
 
     def set_distri_upgrade(self, data):
         self.__get(DISTRI_UPDATE_SKELETON.format(settings['ws_uri'], *data))

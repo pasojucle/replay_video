@@ -81,7 +81,7 @@ def video_show(video_id):
         encoded_thumbnail = video.get_thumbnail_encoding()
 
     action = None
-    if video_player.get_status().get('video_id') == video.id:
+    if settings['env'] == 'prod' and video_player.get_status().get('video_id') == video.id:
         action = video_player.get_status().get('action')
 
     render = render_template("video_show.html", video=video, image=encoded_thumbnail,
@@ -148,8 +148,10 @@ def video_edit(video_id, filename):
             data['filename'] = file.filename
             data['duration'] = file.duration
             data['status'] = Video.STATUS_DOWNLOAD_SUCCESS
+            data['changed'] = 1
 
             video = video_repository.edit(Video(data))
+            web_service.update_db()
 
             return redirect(url_for('video_show', video_id=video.id))
 
@@ -197,6 +199,7 @@ def download_add(video_id):
         channel = Channel({'id': data['channel_id']}).add_if_not_exist()
         data.update({'channel_id': channel.id, 'channel': channel.title})
         video = video_repository.edit(Video(data))
+        web_service.update_db()
 
         return redirect(url_for('video_show', video_id=video.id))
 
@@ -295,6 +298,7 @@ def database_edit(program_id, channel_id):
         if title:
             item.title = title
             repository.update_title(item)
+            web_service.update_db()
             return redirect(url_for("database_list"))
 
     return render_template("database_edit.html", item=item)
