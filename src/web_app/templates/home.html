@@ -29,8 +29,7 @@
             <div class="block">
                 <form name="version_upgrade" method="post">
                     <span>Un nouvelle mise à jour est disponible</span>
-                    <button class="btn btn-primary btn-float-right" type="submit">Mettre à jour maintenant</button>
-                    <input type="hidden" id="tag" name="tag" value="{{ tag }}">
+                    <a href="{{ url_for('version_upgrade') }}" class="btn btn-primary btn-float-right">Voir la mise à jour</a>
                 </form>
             </div>
         {% endif %}
