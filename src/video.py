@@ -130,6 +130,7 @@ class Video:
             device.update_video_list()
 
         VideoRepository().update_status(self)
+        return self
 
     def get_duration(self):
         if self.filename and File(self.filename).get_duration():
@@ -196,7 +197,7 @@ class VideoRepository(ModelRepository):
             response = self.execute('update')
         else:
             self.param.update({'url': video.url, 'status': video.status})
-            self.command = """INSERT INTO video (id_web, title, program_id, broadcast_at, channel_id, filename, duration, url, status changed)
+            self.command = """INSERT INTO video (id_web, title, program_id, broadcast_at, channel_id, filename, duration, url, status, changed)
             VALUES (:id_web, :title, :program_id, :broadcast_at, :channel_id, :filename, :duration, :url, :status, :changed)"""
             response = self.execute('insert')
 
@@ -212,6 +213,14 @@ class VideoRepository(ModelRepository):
             'duration': video.get_duration()
         }
         self.command = "UPDATE video SET filename=:filename WHERE id=:id"
+        self.execute('update')
+
+    def update_status(self, video):
+        self.param = {
+            'id': video.id,
+            'status': video.status,
+        }
+        self.command = "UPDATE video SET status=:status WHERE id=:id"
         self.execute('update')
 
     def find_videos_by_status(self, status):

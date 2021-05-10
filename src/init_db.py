@@ -81,7 +81,16 @@ def change_filename_nullable():
 
 def deleted_broadcast_at_error():
     commands = [
-        f"UPDATE FROM video SET id_web=null;"
+        "DELETE FROM video WHERE broadcast_at='20212021-05-10';"
+    ]
+    queries = [db.Query(command) for command in commands]
+
+    db.execute_queries(queries)
+
+
+def deleted_test_3():
+    commands = [
+        "DELETE FROM video WHERE title='Test3';"
     ]
     queries = [db.Query(command) for command in commands]
 
@@ -90,9 +99,9 @@ def deleted_broadcast_at_error():
 
 def init_id_web():
     commands = [
-        f"UPDATE video SET id_web=null, changed=1;",
-        f"UPDATE program SET id_web=null,changed=1;",
-        f"UPDATE channel SET id_web=null, changed=1;"
+        "UPDATE video SET id_web=null, changed=1;",
+        "UPDATE program SET id_web=null,changed=1;",
+        "UPDATE channel SET id_web=null, changed=1;"
     ]
     queries = [db.Query(command) for command in commands]
 
@@ -106,4 +115,4 @@ if __name__ == "__main__":
     # init_db()
     # convert_db()
     # change_filename_nullable()
-    init_id_web()
+    deleted_test_3()

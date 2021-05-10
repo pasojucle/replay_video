@@ -167,8 +167,7 @@ class Upgrade:
     def restart_services():
         if settings['env'] == 'prod':
             subprocess.call(['service', 'nginx', 'restart'])
-            subprocess.call(['systemctl', 'replay_video.service', 'restart'])
-            subprocess.call(['systemctl', 'upgrade_distri.service', 'restart'])
+            subprocess.call(['systemctl', 'restart', 'upgrade_distri.service'])
 
 if __name__ == '__main__':
     upgrade = Upgrade()

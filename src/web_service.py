@@ -28,8 +28,6 @@ DISTRI_UPDATE_SKELETON = '{0}/ws/update/distri/{1}'
 VERSION_LAST_SKELETON = '{0}/ws/version/last'
 VERSION_STATUS_SKELETON = '{0}/ws/version/{1}/{2}'
 
-FILE_LOCK = path.join(config.BASE_DIR, config.APP_DIR, "get_video_list.lock")
-
 video_repository = VideoRepository()
 program_repository = ProgramRepository()
 channel_repository = ChannelRepository()
@@ -45,39 +43,9 @@ class WebService:
 
         return 0
 
-    @staticmethod
-    def is_video_list_processing():
-        return path.isfile(FILE_LOCK)
-
     def get_video_list(self):
         logger.debug('Get video list')
-        videos = self.__get(VIDEO_LIST_SKELETON.format(settings['ws_uri']))
-        if not self.is_video_list_processing():
-            for data in videos.get('videos'):
-                f = open(FILE_LOCK, "a")
-                f.close()
-                if not data.get('program_id'):
-                    title = data.get('program')
-                    program = ProgramRepository().find_one_by_title(title)
-                    if not program:
-                        program = Program({'title': data.get('program')}).edit()
-                    data['program_id'] = program.id
-                    self.set_program([program.id, program.title, data.get('program_id_website')])
-
-                if not data.get('channel_id'):
-                    channel = ChannelRepository().find_one_by_title(data.get('channel'))
-                    if not channel:
-                        channel = Channel({'title': data.get('channel')}).edit()
-                    data['channel_id'] = channel.id
-                    self.set_channel([channel.id, channel.title, data.get('channel_id_website')])
-
-                self.set_video_status([data.get('id_website'), Video.STATUS_DOWNLOAD_START])
-                video = Video(data)
-                video = video_repository.edit(video)
-                video.download()
-                self.set_video([video.id, video.program_id, data.get('program'), video.channel_id, data.get('channel'), video.status, data.get('id_website')])
-                remove(FILE_LOCK)
-
+        return self.__get(VIDEO_LIST_SKELETON.format(settings['ws_uri']))
 
     def update_db(self):
         logger.info('update db')
