@@ -3,6 +3,8 @@ from pprint import pprint
 import db
 # import app
 
+
+
 class ModelRepository:
     def __init__(self):
         self.command = None
@@ -19,7 +21,6 @@ class ModelRepository:
         results = db.execute_queries([db.Query(self.command, self.param)])
         return [self.klass(data) for data in results]
 
-
     def getOneResult(self):
         result = db.execute_queries([db.Query(self.command, self.param, 'one')])
         return self.klass(result)
@@ -35,8 +36,6 @@ class ModelRepository:
     def find(self, id):
         self.param = {'id': id}
         self.command = f"SELECT * FROM {self.table} WHERE id=:id"
-        pprint(self.command)
-        pprint(self.param)
 
         return self.getOneResult()
 
@@ -55,10 +54,32 @@ class ModelRepository:
     def update_title(self, item):
         self.param = {
             'id': item.id,
-            'title': item.title
+            'title': item.title,
+            'changed': 1
         }
-        self.command = f"UPDATE  {self.table} SET title=:title WHERE id=:id"
+        self.command = f"UPDATE  {self.table} SET title=:title, changed=:changed WHERE id=:id"
         self.execute('update')
+
+    def edit(self, item):
+        param = {
+            'title': item.title,
+            'id_web': item.id_web,
+            'changed': item.changed
+        }
+        if item.id:
+            param["id"] = item.id
+            command = f"UPDATE {item.table} SET title=:title, id_web=:id_web, changed=:changed WHERE id=:id"
+            result = 'one'
+        else:
+            command = f"INSERT INTO {item.table} (title, id_web, changed) VALUES (:title, :id_web, :changed)"
+            result = 'insert'
+
+        response = db.execute_queries([db.Query(command, param, result)])
+
+        if not item.id:
+            item.id = response
+
+        return item
 
     def delete(self, item):
         self.param = {
@@ -67,16 +88,23 @@ class ModelRepository:
         self.command = f"DELETE FROM {self.table}  WHERE id=:id"
         self.execute('update')
 
+    def find_to_update(self):
+        self.command = f"SELECT id, title FROM {self.table} WHERE changed=1;"
+
+        return self.getResults()
+
 
 class Model:
     def __init__(self, data):
         self.id = None
+        self.id_web = None
         self.title = None
+        self.changed = 0
         self.parse(data)
         self.table = self.get_table()
 
     def __str__(self):
-        return f"{self.id}, {self.title}"
+        return f"{self.id}, {self.id_web}, {self.title}, {self.changed}"
 
     @staticmethod
     def get_table():
@@ -86,26 +114,12 @@ class Model:
         if data:
             data = dict(data)
             self.id = data.get('id')
+            self.id_web = data.get('id_web')
             self.title = data.get('title')
+            self.changed = data.get('changed')
 
     def edit(self):
-        param = {
-            'title': self.title,
-        }
-        if self.id:
-            param["id"] = self.id
-            command = f"UPDATE {self.table} SET title=:title WHERE id=:id"
-            result = 'one'
-        else:
-            command = f"INSERT INTO {self.table} (title) VALUES (:title)"
-            result = 'insert'
-
-        response = db.execute_queries([db.Query(command, param, result)])
-
-        if not self.id:
-            self.id = response
-
-        return self
+        return ModelRepository().edit(self)
     #
     # def find(self):
     #     param = {'id': self.id}
@@ -115,8 +129,6 @@ class Model:
     #     return self
 
     def add_if_not_exist(self):
-        pprint(self.id)
-        pprint(self.title)
         if self.id.startswith('#', 0, 1):
             self.title = self.id[1:]
             self.id = None

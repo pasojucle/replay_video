@@ -4,14 +4,14 @@ import os
 import db
 import re
 
-from app import ProgramRepository, ChannelRepository
+from program import ProgramRepository
+from channel import ChannelRepository
 from video import VideoRepository
 from pprint import pprint
 
 
-
 def init_db():
-    with open (os.path.join(config.CWD, 'schema.sql')) as f:
+    with open(os.path.join(config.BASE_DIR, config.APP_DIR, 'schema.sql')) as f:
         # db.execute_queries(f.read().decode('utf8'))
         queries = [db.Query(re.sub(r"[\n\t\s]+", " ", command)) for command in f.read().split(';') if command]
         db.execute_queries(queries)
@@ -79,10 +79,31 @@ def change_filename_nullable():
     db.execute_queries(queries)
 
 
+def deleted_broadcast_at_error():
+    commands = [
+        f"UPDATE FROM video SET id_web=null;"
+    ]
+    queries = [db.Query(command) for command in commands]
+
+    db.execute_queries(queries)
+
+
+def init_id_web():
+    commands = [
+        f"UPDATE video SET id_web=null, changed=1;",
+        f"UPDATE program SET id_web=null,changed=1;",
+        f"UPDATE channel SET id_web=null, changed=1;"
+    ]
+    queries = [db.Query(command) for command in commands]
+
+    db.execute_queries(queries)
+
+
 if __name__ == "__main__":
     video_repository = VideoRepository()
     programRepository = ProgramRepository()
     channelRepository = ChannelRepository()
     # init_db()
     # convert_db()
-    change_filename_nullable()
+    # change_filename_nullable()
+    init_id_web()

@@ -4,23 +4,29 @@ DROP TABLE IF EXISTS video;
 
 CREATE TABLE program (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL
+    id_web INTERGER,
+    title TEXT NOT NULL,
+    changed INTERGER DEFAULT 0 NOT NULL
 );
 CREATE TABLE channel (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL
+    id_web INTERGER,
+    title TEXT NOT NULL,
+    changed INTERGER DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE video (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_web INTERGER,
   title TEXT NOT NULL,
-  program_id INTERGER,
+  program_id INTERGER DEFAULT NULL,
   broadcast_at TIMESTAMP NOT NULL,
   channel_id INTERGER,
   filename TEXT DEFAULT NULL,
   duration TEXT DEFAULT NULL,
   url TEXT DEFAULT NULL,
   status INTERGER DEFAULT 0 NOT NULL,
+  changed INTERGER DEFAULT 0 NOT NULL,
   FOREIGN KEY (program_id) REFERENCES program (id),
   FOREIGN KEY (channel_id) REFERENCES channel (id)
 );

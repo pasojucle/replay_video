@@ -29,6 +29,7 @@ class Video:
 
     def __init__(self, data):
         self.id = None
+        self.id_web = None
         self.title = None
         self.program_id = None
         self.program = None
@@ -39,15 +40,19 @@ class Video:
         self.url = None
         self.status = 0
         self.duration = None
+        self.changed = 0
         self.parse(data)
 
     def __str__(self):
-        return f"{self.id},{self.title},{self.program_id},{self.program},{self.channel_id},{self.channel},{self.filename},{self.url}, {self.status}"
+        return f"{self.id},{self.id_web},{self.title},{self.program_id},{self.program},{self.channel_id},{self.channel},{self.filename},{self.url}, {self.status}, {self.changed}"
 
     def parse(self, data):
         data = dict(data)
         self.id = data.get('id')
+        self.id_web = data.get('id_web')
         self.title = data.get('title')
+        if self.title:
+            self.title.replace('"', "")
         self.program_id = data.get('program_id')
         self.program = data.get('program')
         self.broadcast_at = data.get('broadcast_at')
@@ -61,6 +66,7 @@ class Video:
             self.url = data.get('url')
         if data.get('status'):
             self.status = data.get('status')
+        self.changed = data.get('changed')
 
     def make_thumbnail(self, seconds=9):
         File(self.filename).make_thumbnail(seconds)
@@ -158,7 +164,7 @@ class VideoRepository(ModelRepository):
         return globals()
 
     def find_all(self):
-        self.command = '''SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.status, v.duration,
+        self.command = '''SELECT v.id, v.id_web, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.status, v.duration, v.changed,
                     p.title AS program, c.title AS channel
                     FROM video AS v
                     INNER JOIN program AS p ON p.id = v.program_id
@@ -170,27 +176,29 @@ class VideoRepository(ModelRepository):
 
     def edit(self, video):
         self.param = {
+            'id_web': video.id_web,
             'title': video.title,
             'program_id': video.program_id,
             'program': video.program,
             'broadcast_at': video.broadcast_at,
             'channel_id': video.channel_id,
+            'channel': video.channel,
             'filename': video.filename,
             'duration': video.duration,
-            'status': video.status
+            'status': video.status,
+            'changed': video.changed
         }
 
         if video.id:
             self.param["id"] = video.id
-            self.command = """UPDATE video SET title=:title, program_id=:program_id, broadcast_at=:broadcast_at,
-            channel_id=:channel_id, filename=:filename, duration=:duration, status=:status WHERE id=:id"""
+            self.command = """UPDATE video SET id_web=:id_web,title=:title, program_id=:program_id, broadcast_at=:broadcast_at,
+            channel_id=:channel_id, filename=:filename, duration=:duration, status=:status, changed=:changed WHERE id=:id"""
             response = self.execute('update')
         else:
             self.param.update({'url': video.url, 'status': video.status})
-            self.command = """INSERT INTO video (title, program_id, broadcast_at, channel_id, filename, duration, url, status)
-            VALUES (:title, :program_id, :broadcast_at, :channel_id, :filename, :duration, :url, :status)"""
+            self.command = """INSERT INTO video (id_web, title, program_id, broadcast_at, channel_id, filename, duration, url, status changed)
+            VALUES (:id_web, :title, :program_id, :broadcast_at, :channel_id, :filename, :duration, :url, :status, :changed)"""
             response = self.execute('insert')
-
 
         if not video.id:
             video.id = response
@@ -206,17 +214,9 @@ class VideoRepository(ModelRepository):
         self.command = "UPDATE video SET filename=:filename WHERE id=:id"
         self.execute('update')
 
-    def update_status(self, video):
-        self.param = {
-            'id': video.id,
-            'status': video.status,
-        }
-        self.command = "UPDATE video SET status=:status WHERE id=:id"
-        self.execute('update')
-
     def find_videos_by_status(self, status):
         self.param = {'status': status}
-        self.command = """SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename,
+        self.command = """SELECT v.id, v.id_web, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.changed,
                     p.title AS program
                     FROM video AS v
                     INNER JOIN program AS p ON p.id = v.program_id
@@ -226,7 +226,7 @@ class VideoRepository(ModelRepository):
 
     def find_videos_by_program(self, program_id):
         self.param = {'id': program_id}
-        self.command = """SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename,
+        self.command = """SELECT v.id, v.id_web, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.changed,
                     p.title AS program
                     FROM video AS v
                     INNER JOIN program AS p ON p.id = v.program_id
@@ -236,13 +236,13 @@ class VideoRepository(ModelRepository):
 
     def find_by_term(self, term):
         self.param = {'term': f'%{term}%'}
-        self.command = "SELECT id, title FROM video WHERE title LIKE :term;"
+        self.command = "SELECT id, v.id_web, title FROM video WHERE title LIKE :term;"
 
         return self.getResults()
 
     def find(self, id):
         self.param = {'id': id}
-        self.command = """SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.duration, v.status,
+        self.command = """SELECT v.id, v.id_web, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.duration, v.status, v.changed,
                 p.title AS program, c.title AS channel
                 FROM video AS v
                 INNER JOIN program AS p ON p.id = v.program_id
@@ -257,4 +257,14 @@ class VideoRepository(ModelRepository):
         files = self.getResults()
 
         return [file.filename for file in files]
+
+    def find_to_update(self):
+        self.command = """SELECT v.id, v.id_web, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.duration, v.status, v.changed,
+                p.title AS program, c.title AS channel
+                FROM video AS v
+                INNER JOIN program AS p ON p.id = v.program_id
+                INNER JOIN channel AS c ON c.id = v.channel_id
+                WHERE v.changed=1"""
+
+        return self.getResults()
 
