@@ -2,6 +2,7 @@ import sqlite3
 from os import path
 import shutil
 import sys
+from datetime import datetime
 
 if path.isdir('/home/pi/replay_video'):
     sys.path.append('/home/pi/replay_video')
@@ -22,8 +23,10 @@ from pprint import pprint
 
 
 def add_id_web_and_changed():
+    now = datetime.now()
+    timestamp = datetime.timestamp(now)
     database = path.join(config.BASE_DIR, config.DATA_DIR, settings['database'])
-    database_sauv = path.join(config.BASE_DIR, config.DATA_DIR, 'v1.7_database_sauv.db')
+    database_sauv = path.join(config.BASE_DIR, config.DATA_DIR, f'v1.7_{timestamp}_database_sauv.db')
     if path.isfile(database):
         shutil.copy2(database, database_sauv)
 
@@ -53,9 +56,9 @@ def add_id_web_and_changed():
         videos_str = ", ".join([f"({video.id},\"{video.title}\",{video.program_id},\"{video.broadcast_at}\",{video.channel_id},\"{video.filename}\",\"{video.duration}\",\"{video.url}\",{video.status})" for video in videos])
 
         commands = [
-            f'INSERT INTO program (id, title) VALUES {programs_str};',
-            f'INSERT INTO channel (id, title) VALUES {channels_str};',
-            f'INSERT INTO video (id, title, program_id, broadcast_at, channel_id, filename, duration, url, status) VALUES {videos_str};'
+            f'INSERT INTO program (id, title) VALUES {programs_str}',
+            f'INSERT INTO channel (id, title) VALUES {channels_str}',
+            f'INSERT INTO video (id, title, program_id, broadcast_at, channel_id, filename, duration, url, status) VALUES {videos_str}'
         ]
         queries = [db.Query(command) for command in commands]
 
