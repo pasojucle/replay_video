@@ -150,10 +150,10 @@ class Upgrade:
             except subprocess.CalledProcessError as e:
                 logger.error(f'Erreur lors de l\'exéctution du script {script_link}')
                 status = 3
-
-            if result.returncode != 0:
-                logger.error(f'Erreur lors de l\'exéctution du script {script_link}')
-                status = 3
+            #
+            # if result.returncode != 0:
+            #     logger.error(f'Erreur lors de l\'exéctution du script {script_link}')
+            #     status = 3
 
             copytree(script_dir, path.join(control_path, script_name))
 

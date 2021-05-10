@@ -24,7 +24,7 @@ VIDEO_STATUS_SKELETON = '{0}/ws/video/status/{1}/{2}'
 VIDEO_SKELETON = '{0}/ws/video/{1}/{2}/{3}/{4}/{5}/{6}/{7}'
 PROGRAM_SKELETON = '{0}/ws/program/{1}/{2}/{3}'
 CHANNEL_SKELETON = '{0}/ws/channel/{1}/{2}/{3}'
-DISTRI_UPDATE_SKELETON = '{0}/ws//update/distri/{1}'
+DISTRI_UPDATE_SKELETON = '{0}/ws/update/distri/{1}'
 VERSION_LAST_SKELETON = '{0}/ws/version/last'
 VERSION_STATUS_SKELETON = '{0}/ws/version/{1}/{2}'
 
@@ -34,6 +34,7 @@ video_repository = VideoRepository()
 program_repository = ProgramRepository()
 channel_repository = ChannelRepository()
 logger = LogGen().loggen()
+
 
 class WebService:
 

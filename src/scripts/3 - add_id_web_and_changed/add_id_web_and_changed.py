@@ -5,7 +5,7 @@ import sys
 
 if path.isdir('/home/pi/replay_video'):
     sys.path.append('/home/pi/replay_video')
-    sys.path.append('/home/pi/replay_video/app')
+    sys.path.append('/home/pi/replay_video/version/v1.7')
 
 if path.isdir('/home/patrick/python_projects/project_video_raspberry'):
     sys.path.append('/home/patrick/python_projects/project_video_raspberry')

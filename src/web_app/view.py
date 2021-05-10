@@ -396,7 +396,7 @@ def version_upgrade():
     else:
         data = dict(request.form)
         tag = data.get('tag')
-        status = upgrade.change_version(tag)
+        status = upgrade.execute()
 
     return render_template("version_upgrade.html", tag=tag, status=status)
 
