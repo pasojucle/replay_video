@@ -14,9 +14,9 @@ if path.isdir('/home/patrick/python_projects/project_video_raspberry'):
 import config
 from settings import settings
 import db
-from program import ProgramRepository
-from channel import ChannelRepository
-from video import VideoRepository
+from program import Program
+from channel import Channel
+from video import Video
 from init_db import init_db
 from pprint import pprint
 
@@ -28,9 +28,24 @@ def add_id_web_and_changed():
         shutil.copy2(database, database_sauv)
 
     if path.isfile(database_sauv):
-        videos = video_repository.find_all()
-        programs = programRepository.find_all()
-        channels = channelRepository.find_all()
+        command = '''SELECT v.id, v.title, v.program_id, v.broadcast_at, v.channel_id, v.filename, v.url, v.status, v.duration,
+                    p.title AS program, c.title AS channel
+                    FROM video AS v
+                    INNER JOIN program AS p ON p.id = v.program_id
+                    INNER JOIN channel AS c ON c.id = v.channel_id
+                    ORDER BY v.broadcast_at DESC
+                    ;'''
+
+        results = db.execute_queries([db.Query(command)])
+        videos = [Video(data) for data in results]
+
+        command = 'SELECT * FROM program ORDER BY title ASC;'
+        results = db.execute_queries([db.Query(command)])
+        programs = [Program(data) for data in results]
+
+        command = 'SELECT * FROM channel ORDER BY title ASC;'
+        results = db.execute_queries([db.Query(command)])
+        channels = [Channel(data) for data in results]
 
         init_db()
         programs_str = ", ".join([f"({program.id},\"{program.title}\")" for program in programs])
