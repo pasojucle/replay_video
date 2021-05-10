@@ -25,8 +25,8 @@ from device import Device
 from file import File
 from network import Network
 from web_service import WebService
+from download_video_from_website import DownloadVideoFromWebsite
 from upgrade import Upgrade
-
 from settings import settings
 
 app = Flask(__name__)
@@ -37,6 +37,7 @@ channel_repository = ChannelRepository()
 network = Network()
 web_service = WebService()
 upgrade = Upgrade()
+download_video_from_website = DownloadVideoFromWebsite()
 
 if settings['env'] == 'prod':
     from video_player_subprocess import VideoPlayer
@@ -419,13 +420,15 @@ def video_list_ajax():
 
 @app.route("/videos/status/", methods=['GET'])
 def videos_status_ajax():
+    videos_in_download = video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_START)
+    videos_in_error = video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_ERROR)
     videos_status = [
         {'label': 'À télécharger', 'value': web_service.has_video_to_download()},
-        {'label': 'En chargement', 'value': len(video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_START))},
-        {'label': 'En erreur', 'value': len(video_repository.find_videos_by_status(Video.STATUS_DOWNLOAD_ERROR))},
+        {'label': 'En chargement', 'value': len(videos_in_download) if videos_in_download else 0},
+        {'label': 'En erreur', 'value': len(videos_in_error) if videos_in_error else 0},
     ]
 
-    is_video_list_processing=web_service.is_video_list_processing()
+    is_video_list_processing = download_video_from_website.is_video_list_processing()
     render = render_template("videos_status.html", videos_status=videos_status,
                              is_video_list_processing=is_video_list_processing)
 
