@@ -63,7 +63,4 @@ def add_id_web_and_changed():
 
 
 if __name__ == "__main__":
-    video_repository = VideoRepository()
-    programRepository = ProgramRepository()
-    channelRepository = ChannelRepository()
     add_id_web_and_changed()
