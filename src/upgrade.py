@@ -166,8 +166,11 @@ class Upgrade:
     @staticmethod
     def restart_services():
         if settings['env'] == 'prod':
-            subprocess.call(['service', 'nginx', 'restart'])
-            subprocess.call(['systemctl', 'restart', 'upgrade_distri.service'])
+            subprocess.call(['systemctl', 'stop', 'nginx'])
+            subprocess.call(['systemctl', 'stop', 'upgrade_distri.service'])
+            subprocess.call(['systemctl', 'daemon-reload'])
+            subprocess.call(['systemctl', 'start', 'nginx'])
+            subprocess.call(['systemctl', 'start', 'upgrade_distri.service'])
 
 if __name__ == '__main__':
     upgrade = Upgrade()
