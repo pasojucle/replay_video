@@ -39,14 +39,19 @@ class Upgrade:
             if settings['env'] == 'prod':
                 self.execute_scripts()
                 self.change_version()
-                self.restart_services()
+                self.reboot()
 
     def get_new_version(self):
         logger.info('Get version')
         bash_command = "git fetch && git tag"
-        result = subprocess.run(['bash', '-c', bash_command], capture_output=True, text=True, check=True)
-        versions = result.stdout.splitlines()
-        versions.sort(reverse=True)
+        try:
+            result = subprocess.run(['bash', '-c', bash_command], capture_output=True, text=True, check=True)
+            versions = result.stdout.splitlines()
+            versions.sort(reverse=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(e)
+            return None
+
         tag = versions[0] if versions else None
 
         if tag and tag[1:] > settings['version'][1:]:
@@ -164,13 +169,9 @@ class Upgrade:
         return status
 
     @staticmethod
-    def restart_services():
+    def reboot():
         if settings['env'] == 'prod':
-            subprocess.call(['systemctl', 'stop', 'nginx'])
-            subprocess.call(['systemctl', 'stop', 'upgrade_distri.service'])
-            subprocess.call(['systemctl', 'daemon-reload'])
-            subprocess.call(['systemctl', 'start', 'nginx'])
-            subprocess.call(['systemctl', 'start', 'upgrade_distri.service'])
+            subprocess.call(['reboot'])
 
 if __name__ == '__main__':
     upgrade = Upgrade()
